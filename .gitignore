@@ -1,55 +1,23 @@
-# Prerequisites
-*.d
+# Ignorer tout par défaut
+*
 
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
+# Autoriser les fichiers source C
+!*.c
+!*.h
 
-# Linker output
-*.ilk
-*.map
-*.exp
+# Autoriser les fichiers Ruby
+!*.rb
 
-# Precompiled Headers
-*.gch
-*.pch
+# Autoriser Makefile
+!Makefile
+!makefile
 
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
+# Autoriser les logs
+!*.log
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+# Autoriser README
+!README*
+!*.md
 
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
-
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
-
-# debug information files
-*.dwo
+# Autoriser les dossiers (pour que Git puisse parcourir)
+!*/
