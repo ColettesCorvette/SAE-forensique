@@ -1,5 +1,9 @@
 # SAE-forensique
 
+---
+
+# Partie 1 - États de processus
+
 Programme C pour simuler et analyser différents états de processus sous Linux : R (running), S (sleeping), D (disk sleep), Z (zombie) et T (stopped).
 
 ## Compilation et Utilisation
@@ -16,6 +20,8 @@ make clean           # Nettoyer
 - `3` - Blocage I/O pendant 15s (État D)
 - `4` - Processus zombie (État Z)
 - `5` - Processus stoppé (État T)
+
+---
 
 ## Méthodologie de diagnostic
 
@@ -94,6 +100,7 @@ kill -CONT <PID>
 kill -9 <PID>
 ```
 
+---
 ## Commandes essentielles
 
 ```bash
@@ -113,6 +120,8 @@ kill -CONT <PID>  # Reprendre (18)
 kill -STOP <PID>  # Stopper (19)
 ```
 
+---
+
 ## États des processus (STAT)
 
 - **R** (running) : En cours d'exécution
@@ -120,6 +129,8 @@ kill -STOP <PID>  # Stopper (19)
 - **D** (disk sleep) : Attente I/O (non interruptible)
 - **Z** (zombie) : Terminé, en attente de nettoyage
 - **T** (stopped) : En pause
+
+---
 
 ## Analyse forensique avancée
 
@@ -224,7 +235,7 @@ htop
 3. **Comprendre le blocage :** `cat /proc/<PID>/wchan`
 4. **Prouver l'activité :** `sudo strace -p <PID>` (sauf D/Z)
 
-## Script Ruby - Rapport d'analyse automatisé
+### Script Ruby - Rapport d'analyse automatisé
 
 Le script `analyse_processus.rb` génère un rapport complet sur n'importe quel processus.
 
@@ -277,4 +288,129 @@ Appels système récents:
   • mmap         ← malloc(1MB)
   • memset       ← Force l'allocation
 ```
+
+
+---
+
+# Partie 2 - Diagnostic réseau
+
+## Script diagnosticReseau.sh - Diagnostic de pannes réseau
+
+Le script `diagnosticReseau.sh` permet de simuler et diagnostiquer différents types de problèmes réseau courants.
+
+### Utilisation
+
+```bash
+bash src/diagnosticReseau.sh <scenario> [cible]
+```
+
+**Scénarios disponibles :**
+- `service` - Test de blocage de service HTTP local
+- `latence` - Analyse de latence réseau
+- `dns` - Diagnostic de résolution DNS
+- `firewall` - Vérification de règles pare-feu
+
+**Cible :** Par défaut `google.com`, personnalisable
+
+### 1. Scénario `service` - Service inaccessible
+
+Simule un blocage de service HTTP local avec iptables :
+
+```bash
+# Lancer d'abord un serveur HTTP dans un terminal :
+python3 -m http.server 8080 --bind 127.0.0.1
+
+# Dans un autre terminal :
+bash src/diagnosticReseau.sh service
+```
+
+**Étapes du diagnostic :**
+1. Test d'accès au service avant panne
+2. Ajout d'une règle iptables bloquant le port 8080
+3. Test d'accès après blocage (échec attendu)
+4. Nettoyage automatique de la règle
+
+**Commandes utiles affichées :**
+- `sudo iptables -L -v -n` : Lister les règles du pare-feu
+- `ss -tuln` : Voir les ports en écoute
+
+### 2. Scénario `latence` - Problème de lenteur
+
+Analyse la latence réseau vers une cible :
+
+```bash
+bash src/diagnosticReseau.sh latence google.com
+```
+
+**Tests effectués :**
+1. Ping classique (10 paquets) vers la cible
+2. Traceroute/mtr pour identifier les sauts réseau
+3. Suggestion de comparaison avec une cible proche (gateway)
+
+**Outils utilisés :** `ping`, `mtr`, `traceroute`
+
+### 3. Scénario `dns` - Problème de résolution DNS
+
+Diagnostique les problèmes de résolution de noms de domaine :
+
+```bash
+bash src/diagnosticReseau.sh dns google.com
+```
+
+**Tests effectués :**
+1. Ping par nom (test combiné résolution + connectivité)
+2. Résolution DNS avec `dig` ou `host`
+3. Test avec DNS public (8.8.8.8) pour comparaison
+4. Vérification du fichier `/etc/resolv.conf`
+
+**Permet de distinguer :** Problème DNS vs problème réseau
+
+### 4. Scénario `firewall` - Blocage pare-feu
+
+Teste le blocage d'un service par le pare-feu :
+
+```bash
+# Lancer d'abord un serveur HTTP :
+python3 -m http.server 8080 --bind 127.0.0.1
+
+# Tester :
+bash src/diagnosticReseau.sh firewall
+```
+
+**Tests effectués :**
+1. Test HTTP initial (récupère le code HTTP)
+2. Ajout d'une règle iptables de blocage
+3. Nouveau test HTTP (échec attendu)
+4. Affichage des commandes de diagnostic
+5. Nettoyage automatique
+
+### Prérequis système
+
+Le script détecte automatiquement les outils disponibles :
+- **Obligatoires :** `curl`, `ping`, `iptables` (avec sudo)
+- **Optionnels :** `dig`, `host`, `mtr`, `traceroute`
+
+### Exemple de rapport complet
+
+```bash
+bash src/diagnosticReseau.sh dns example.com
+
+# Sortie attendue :
+# === Diagnostic réseau : dns (cible: example.com) ===
+#
+# 1.Ping par nom
+# PING example.com (93.184.216.34)...
+#   -> Ping OK
+#
+# 2.Résolution DNS
+# example.com.    3600    IN      A       93.184.216.34
+#
+# 3.Test avec DNS public (si dig)
+# ;; SERVER: 8.8.8.8#53
+#
+# 4.Fichier /etc/resolv.conf
+# nameserver 192.168.1.1
+```
+
+---
 
