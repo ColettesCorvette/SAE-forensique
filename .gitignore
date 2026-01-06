@@ -7,6 +7,8 @@
 
 # Autoriser les fichiers Ruby
 !*.rb
+# Autoriser les fichiers Bash
+!*.sh
 
 # Autoriser Makefile
 !Makefile
