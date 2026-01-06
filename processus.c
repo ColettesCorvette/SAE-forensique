@@ -8,15 +8,15 @@
 #include <string.h>
 
 void infinite_loop() { // Etat R
-    printf("Boucle infinie (Etat R). Ctrl+C pour arrêter.\n");
+    printf("[PID: %d] Boucle infinie (Etat R). Ctrl+C pour arrêter.\n", getpid());
     while(1); 
 }
 
 void memory_leak() { // Etat S 
-    printf("Fuite mémoire progressive (regardez RES/MEM%%)...\n");
+    printf("[PID: %d] Fuite mémoire progressive (regardez RES/MEM%%)...\n", getpid());
     while(1) {
         char * bloc = (char*)malloc(1024 * 1024); // 1 Mo
-        if(bloc) memset(bloc, 0, 1024 * 1024);    // Force l'allocation
+        if(bloc) memset(bloc, 0, 1024 * 1024); //Allocation de force
         usleep(50000); // 50ms pause
     }
 }
@@ -24,7 +24,7 @@ void memory_leak() { // Etat S
 void IO_lock() { // Etat D
     printf("Parent (PID: %d) va passer en Etat D pendant 15s...\n", getpid());
     if (vfork() == 0) {
-        sleep(15); 
+        sleep(30); 
         _exit(0);
     }
     printf("Parent libéré de l'état D.\n");
@@ -33,11 +33,12 @@ void IO_lock() { // Etat D
 void make_zombie() { // Etat Z
     pid_t pid = fork();
     if (pid == 0) {
-        exit(0); // l'enfant meurt -> Zombie
+        exit(0); 
     } else {
+        printf("[PID Parent: %d] [PID Fils Zombie: %d]\n", getpid(), pid);
         printf("Le fils est Zombie (Z). Vérifiez avec 'ps' maintenant !\n");
         printf("Le parent dort 20s...\n");
-        sleep(20);
+        sleep(30);
     }
 }
 

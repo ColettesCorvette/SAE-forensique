@@ -217,10 +217,64 @@ htop
 # - F10 : Quitter
 ```
 
-### Méthodologie optimale (du plus simple au plus complexe)
+### Méthodologie optimale 
 
 1. **Repérer :** `pgrep -a processus`
-2. **Visualiser :** `htop` (conso) ou `pstree -p` (hiérarchie)
+2. **Visualiser :** `htop` (consommation) ou `pstree -p` (hiérarchie)
 3. **Comprendre le blocage :** `cat /proc/<PID>/wchan`
 4. **Prouver l'activité :** `sudo strace -p <PID>` (sauf D/Z)
+
+## Script Ruby - Rapport d'analyse automatisé
+
+Le script `analyse_processus.rb` génère un rapport complet sur n'importe quel processus.
+
+### Utilisation
+
+```bash
+ruby analyse_processus.rb <PID>
+```
+
+### Que fait le script ?
+
+Le script lit directement les fichiers `/proc/<PID>/*` pour extraire :
+
+1. **Informations de base** : nom du processus, commande complète, état (R/S/D/Z/T)
+2. **Consommation ressources** : 
+   - CPU : temps total d'exécution en secondes
+   - Mémoire : taille virtuelle (VmSize) et résidente (VmRSS) en MB
+3. **Fichiers ouverts** : liste des 10 premiers descripteurs de fichiers (FD) avec leurs chemins
+4. **Appels système récents** : capture via `strace` pendant 1 seconde (nécessite root)
+
+### Exemple avec le processus de fuite mémoire
+
+```bash
+# Lancer une fuite mémoire
+./processus 2 &
+
+# Analyser (le PID s'affiche au démarrage)
+ruby analyse_processus.rb 12345
+```
+
+**Sortie attendue :**
+```
+═══ RAPPORT PROCESSUS PID 12345 ═══
+
+Nom: processus
+Commande: ./processus 2
+État: S (Sleeping)
+
+CPU: 0.15s
+Mémoire virtuelle: 245 MB
+Mémoire résidente: 187 MB    
+
+Fichiers ouverts (3):
+  • /dev/pts/0
+  • /lib/x86_64-linux-gnu/libc.so.6
+  • /usr/lib/locale/locale-archive
+
+Appels système récents:
+  • nanosleep    ← usleep(50000)
+  • mmap         ← malloc(1MB)
+  • memset       ← Force l'allocation
+```
 
