@@ -22,7 +22,7 @@ void memory_leak() { // Etat S
 }
 
 void IO_lock() { // Etat D
-    printf("Parent (PID: %d) va passer en Etat D pendant 15s...\n", getpid());
+    printf("Parent (PID: %d) va passer en Etat D pendant 30s...\n", getpid());
     if (vfork() == 0) {
         sleep(30); 
         _exit(0);
@@ -37,7 +37,7 @@ void make_zombie() { // Etat Z
     } else {
         printf("[PID Parent: %d] [PID Fils Zombie: %d]\n", getpid(), pid);
         printf("Le fils est Zombie (Z). Vérifiez avec 'ps' maintenant !\n");
-        printf("Le parent dort 20s...\n");
+        printf("Le parent dort 30s...\n");
         sleep(30);
     }
 }
