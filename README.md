@@ -1,4 +1,4 @@
-# SAE 3.03 - Analyse Forensique et Débogage Système
+# SAE 3 Projet tutoré - Analyse Forensique et Débogage Système
 
 Outils et méthodologies pour le diagnostic de processus, l'analyse réseau et l'investigation forensique sous Linux.
 
