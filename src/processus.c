@@ -17,7 +17,7 @@ void memory_leak() { // Etat S
     while(1) {
         char * bloc = (char*)malloc(1024 * 1024); // 1 Mo
         if(bloc) memset(bloc, 0, 1024 * 1024); //Allocation de force
-        usleep(10000); // 10ms de pause
+        //usleep(10000); // 10ms de pause
     }
 }
 
