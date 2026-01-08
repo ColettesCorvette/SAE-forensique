@@ -224,7 +224,65 @@ sudo systemctl daemon-reload
 
 ---
 
-## 4. Outils Forensiques Essentiels
+## Partie 4 – Diagnostic système et scénario de surcharge CPU
+
+Deux scripts principaux sont ajoutés dans le dossier `src/` :
+
+- `diagnosticSysteme.sh`  
+  Script de **diagnostic global** qui exécute en série plusieurs commandes système et affiche un résumé lisible de l’état de la machine.
+
+- `scenarioCPU.sh`  
+  Script de **simulation de surcharge CPU** : il lance autant de boucles infinies qu’il y a de cœurs sur la machine, afin de saturer le processeur.
+
+---
+
+### Outils utilisés dans `diagnosticSysteme.sh`
+
+Le script `diagnosticSysteme.sh` utilise plusieurs outils classiques d’administration Linux :
+
+- `vmstat`  
+  Donne une vue synthétique de l’utilisation de la **mémoire**, de la **CPU** et des **I/O disque** à intervalles réguliers.
+
+- `iostat -xz`  
+  Permet de voir le comportement des **disques** (taux d’utilisation, temps d’attente, saturation).  
+  Utile pour suspecter un disque ou un volume fortement sollicité.
+
+- `mpstat -P ALL`  
+  Affiche l’utilisation de la CPU **par cœur**.  
+  Permet de voir si tous les cœurs sont chargés ou si un seul est saturé.
+
+- `iotop` (ou `ps aux --sort=-%mem` en fallback)  
+  Identifie les **processus les plus gourmands en I/O ou en mémoire**.  
+  Si `iotop` n’est pas disponible, on affiche les processus triés par consommation mémoire.
+
+- `sar`  
+  Outil de la suite `sysstat` qui permet de collecter des statistiques système dans le temps (CPU, mémoire, réseau…).  
+  Ici, il est utilisé s’il est présent pour compléter les mesures instantanées.
+
+- `dmesg`  
+  Affiche les derniers **messages du noyau** (erreurs, problèmes de disque…).  
+  Utile pour repérer des événements système critiques liés à la charge.
+
+- `systemd-analyze time` et `systemd-analyze blame`  
+  Donnent des informations sur le **temps de démarrage** du système et les **services les plus lents**.  
+  Même si ce n’est pas directement lié au scénario CPU, cela illustre l’utilisation d’outils de diagnostic de performance au niveau des services.
+
+Chaque commande est encadrée par un titre lisible et des couleurs pour faciliter l’interprétation.
+
+---
+
+### Scénario de simulation choisi (surcharge CPU)
+
+Le script `scenarioCPU.sh` met en place un scénario simple mais efficace :
+
+1. Il détecte le **nombre de cœurs**  disponibles avec `nproc`.
+2. Il lance, pour chaque cœur, une **boucle infinie vide** (`while true; do :; done &`) en arrière‑plan.
+3. Ces boucles consomment 100 % de CPU sur chaque cœur, ce qui simule une **charge maximale**.
+4. Le script affiche des messages d’information (nombre de cœurs, lancement des boucles) et reste actif jusqu’à ce qu’on l’arrête avec `Ctrl+C`.
+
+---
+
+## Outils Forensiques Essentiels
 
 ### Analyse de logs système
 
@@ -266,6 +324,7 @@ cat /proc/meminfo
 
 ---
 
+
 ## Structure du Projet
 
 ```
@@ -277,8 +336,9 @@ SAE-forensique/
     ├── processus.c              # Code source simulateur (Partie 1)
     ├── analyse_processus.rb     # Script Ruby analyse (Partie 1)
     ├── diagnosticReseau.sh      # Script Bash diagnostic réseau (Partie 2)
-    ├── diagnosticSysteme.sh     # Script Bash diagnostic système
-    └── scan_forensic.sh         # Script analyse forensique (Partie 3)
+    ├── scan_forensic.sh         # Script analyse forensique (Partie 3)
+    ├── diagnosticSysteme.sh     # Script Bash tableau de bord système (Partie 4.1)
+    └── scenarioCPU.sh           # Script Bash de génération surchage CPU (Partie 4.2)
 ```
 
 ---
