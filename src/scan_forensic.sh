@@ -6,7 +6,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-# Fichier de log cible (Fedora/RHEL)
+# Fichier de log cible 
 LOG_SECURE="/var/log/secure"
 
 # Vérification des droits root
@@ -25,7 +25,6 @@ echo ""
 echo -e "${YELLOW}[*] Analyse SSH (Brute Force)${NC}"
 
 if [ -f "$LOG_SECURE" ]; then
-    # CORRECTION ICI : Ajout de 'grep "sshd"' pour ignorer les commandes sudo/grep
     FAILED_IPS=$(grep "sshd" "$LOG_SECURE" 2>/dev/null | grep "Failed password" | awk '{print $(NF-3)}' | sort | uniq -c | sort -nr)
     
     if [ -n "$FAILED_IPS" ]; then
@@ -51,11 +50,10 @@ else
 fi
 echo ""
 
-# --- 2. Détection Escalade Privilèges (Auditd) ---
+# --- 2. Détection Escalade Privilèges ---
 echo -e "${YELLOW}[*] Analyse Auditd (Accès Fichiers)${NC}"
 
 if command -v ausearch &>/dev/null; then
-    # Recherche spécifique sur la clé définie dans le TP
     AUDIT_SHADOW=$(ausearch -k tentative_shadow -i 2>/dev/null | grep "success=no")
     
     if [ -n "$AUDIT_SHADOW" ]; then
@@ -71,21 +69,21 @@ else
 fi
 echo ""
 
-# --- 3. Détection OOM Killer (Crash Mémoire) ---
+# --- 3. Détection OOM Killer ---
 echo -e "${YELLOW}[*] Analyse OOM Killer (Crash Mémoire)${NC}"
 
-# Recherche dans les logs noyau récents
+# Recherche dans les logs noyau 
 OOM_LAST=$(journalctl -k --since "1 hour ago" 2>/dev/null | grep "Killed process" | tail -n 1)
 
 if [ -n "$OOM_LAST" ]; then
     echo -e "${RED}[!] OOM Killer déclenché récemment${NC}"
     
-    # Extraction via Perl Regex (grep -P) pour plus de précision
+    # Extraction 
     PID=$(echo "$OOM_LAST" | grep -oP 'process \K\d+')
     NOM=$(echo "$OOM_LAST" | grep -oP '\(\K[^)]+')
     RAM_KB=$(echo "$OOM_LAST" | grep -oP 'anon-rss:\K\d+')
     
-    # Conversion kB vers Go (approximative pour affichage)
+    # Conversion kB vers Go 
     RAM_GB=$((RAM_KB / 1024 / 1024))
     
     echo -e "${RED}    Processus tué : $NOM (PID $PID)${NC}"

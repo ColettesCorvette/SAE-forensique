@@ -16,7 +16,7 @@ clean:
 run: $(TARGET)
 	./$(TARGET)
 
-# Analyse d'un processus avec le script Ruby
+# Analyse d'un processus avec un script Ruby
 analyse:
 	@if [ -z "$(PID)" ]; then \
 		echo "Usage: make analyse PID=<numéro>"; \

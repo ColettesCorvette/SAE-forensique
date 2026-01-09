@@ -23,7 +23,7 @@ vm_rss = status[/VmRSS:\s+(\d+)/, 1].to_i / 1024
 # Fichiers ouverts
 open_files = Dir.glob("/proc/#{pid}/fd/*").map { |f| File.readlink(f) rescue nil }.compact
 
-# Appels système (si root)
+# Appels système 
 syscalls = []
 if Process.uid == 0
   syscalls = `timeout 1 strace -p #{pid} -c 2>&1`.lines
