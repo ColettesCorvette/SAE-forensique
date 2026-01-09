@@ -90,7 +90,7 @@ bash src/diagnosticReseau.sh <scenario> [cible]
 | Scénario | Description | Commandes utilisées |
 |----------|-------------|---------------------|
 | `service` | Test d'accessibilité port local (simule blocage firewall) | `curl`, `ss -tuln`, `iptables -L` |
-| `latence` | Analyse qualité réseau et route | `ping`, `mtr`, `traceroute` |
+| `latence` | Analyse qualité réseau et route | `ping`, `mtr`, `tc qdisc netem` |
 | `dns` | Chaîne de résolution DNS (DNS vs Réseau) | `dig`, `host`, `/etc/resolv.conf` |
 | `firewall` | Vérification règles de filtrage | `iptables -L -v -n`, `curl` |
 
@@ -327,4 +327,10 @@ SAE-forensique/
 3. Audit : `ausearch -f <fichier>`, `aureport`
 4. Corrélation : Croiser dates/heures entre sources
 
+**Outils de diagnostic système avanacés :**
+1. vmstat, isotat, mpstat : statistiques systèmes (mémoire, I/O, CPU)
+2. iotop : identifier les processus consommateurs d’I/O disque,
+3. sar : collecter et analyser l’historique des performances système,
+4. dmesg : analyser les messages du noyau, identifier des erreurs matérielles,
+5. systemd-analyze : analyser les temps de démarrage du système et des services.
 ---
