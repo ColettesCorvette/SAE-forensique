@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# Scénario CPU - Saturation du système avec boucles infinies
+NUM_CORES=$(nproc) # donne le nombre de coeurs
 
-NUM_CORES=$(nproc)
-
+# fonction qui permet d'arrêter proprement les jobs en arrière plan
 cleanup() {
     echo ""
     echo "Arrêt du scénario..."
@@ -25,7 +24,7 @@ echo ""
 
 # Boucle infinie
 for ((i = 0; i < NUM_CORES; i++)); do
-    while true; do :; done &
+    while true; do :; done & # opération vide 
 done
 
 wait
