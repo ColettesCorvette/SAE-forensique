@@ -55,7 +55,7 @@ Génère un rapport automatisé sur n'importe quel processus (lecture `/proc`, s
 
 **Utilisation :**
 ```bash
-  ./src/analyse_processus.rb <PID>
+./src/analyse_processus.rb <PID>
 ```
 
 **Informations extraites :**
