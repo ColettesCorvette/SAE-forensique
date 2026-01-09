@@ -69,15 +69,19 @@ case "$SCENARIO" in
         ;;
 
     dns)
-        echo "1.Ping par nom"
+        RESOLV="/etc/resolv.conf"
+        BACKUP="/tmp/resolv.conf.backup.$$"
+        DNS_FAUX="10.255.255.1"   # IP arbitraire qui ne répond pas en DNS
+
+        echo "1.Ping par nom (état normal)"
         if ping -c 3 "$CIBLE"; then
             echo "  -> Ping OK"
         else
-            echo "  -> Ping KO (nom ou réseau)"
+            echo "  -> Ping KO"
         fi
         echo
 
-        echo "2.Résolution DNS"
+        echo "2.Résolution DNS normale via la configuration système"
         if command -v dig >/dev/null 2>&1; then
             dig "$CIBLE"
         elif command -v host >/dev/null 2>&1; then
@@ -87,14 +91,53 @@ case "$SCENARIO" in
         fi
         echo
 
-        echo "3.Test avec DNS public (si dig)"
+        echo "3.Sauvegarde et corruption temporaire de /etc/resolv.conf"
+        if [ -r "$RESOLV" ]; then
+            sudo cp "$RESOLV" "$BACKUP"
+            echo "   -> Backup dans $BACKUP"
+            echo "nameserver $DNS_FAUX" | sudo tee "$RESOLV" >/dev/null
+            echo "   -> /etc/resolv.conf pointe maintenant vers un DNS injoignable ($DNS_FAUX)"
+        else
+            echo "   -> Impossible de lire $RESOLV, abandon de la simulation DNS défaillant"
+            echo
+            exit 1
+        fi
+        echo
+
+        echo "4.Ping par nom avec DNS cassé"
+        if ping -c 3 "$CIBLE"; then
+            echo "  -> Ping OK"
+        else
+            echo "  -> Ping KO"
+        fi
+        echo
+
+        echo "5.Résolution DNS locale avec DNS cassé"
+        if command -v dig >/dev/null 2>&1; then
+            dig "$CIBLE"
+        elif command -v host >/dev/null 2>&1; then
+            host "$CIBLE"
+        fi
+        echo
+
+        echo "6.Test avec DNS public"
         if command -v dig >/dev/null 2>&1; then
             dig "$CIBLE" @8.8.8.8
         fi
         echo
 
-        echo "4.Fichier /etc/resolv.conf"
-        grep -E '^nameserver' /etc/resolv.conf 2>/dev/null || echo "  -> aucun nameserver"
+        echo "7.Contenu de /etc/resolv.conf pendant la panne"
+        grep -E '^nameserver' "$RESOLV" 2>/dev/null || echo "  -> aucun nameserver"
+        echo
+
+        echo "8.Restaurer la configuration DNS"
+        if [ -f "$BACKUP" ]; then
+            sudo mv "$BACKUP" "$RESOLV"
+            echo "   -> /etc/resolv.conf restauré"
+        else
+            echo "   -> Pas de backup trouvé"
+        fi
+        echo
         ;;
 
     firewall)
