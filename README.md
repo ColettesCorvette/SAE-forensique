@@ -1,4 +1,4 @@
-# SAE 3 Projet tutoré - Analyse Forensique et Débogage Système
+# SAE 3 Projet tutoré - Analyse forensique et débogage système
 
 Outils et méthodologies pour le diagnostic de processus, l'analyse réseau et l'investigation forensique sous Linux.
 
@@ -16,7 +16,7 @@ make clean
 
 ---
 
-## 1. Analyse de Processus
+## 1. Analyse de processus
 
 ### Simulateur d'états (`processus.c`)
 
@@ -76,7 +76,7 @@ Syscalls: nanosleep, mmap, memset (fuite détectée)
 
 ---
 
-## 2. Diagnostic Réseau
+## 2. Diagnostic réseau
 
 ### Script `diagnosticReseau.sh`
 
@@ -119,11 +119,11 @@ bash src/diagnosticReseau.sh firewall
 
 ---
 
-## 3. Investigation Forensique
+## 3. Investigation forensique
 
 Analyse de deux incidents de sécurité réels.
 
-### Incident A : Brute Force SSH + Escalade de Privilèges
+### Incident A : Brute force SSH + escalade de privilèges
 
 **Contexte :** 15 tentatives SSH échouées suivies d'une connexion réussie et tentative d'accès à `/etc/shadow`.
 
@@ -143,7 +143,7 @@ sudo journalctl -u sshd --since "07:00" --until "12:00" -p warning
 sudo ausearch -f /etc/shadow -ts 07/01/2026 11:00:00 -i
 ```
 
-**Preuve clé (Audit log) :**
+**Preuve clé (audit log) :**
 ```
 type=SYSCALL comm="cat" exe="/usr/bin/cat" name="/etc/shadow" 
 success=no exit=-13 (EACCES) UID="iut-503"
@@ -156,7 +156,7 @@ success=no exit=-13 (EACCES) UID="iut-503"
 
 ---
 
-### Incident B : Saturation Mémoire
+### Incident B : Saturation mémoire
 
 **Contexte :** 4 crashs successifs en 8 minutes causés par le processus `./processus` (option 2 - fuite mémoire).
 
@@ -171,7 +171,7 @@ sudo journalctl -k -r | grep "Out of memory"
 sudo cat ~iut-503/.bash_history | grep processus
 ```
 
-**Preuve (Kernel log) :**
+**Preuve (kernel log) :**
 ```
 janv. 07 15:25:25 iutnc-503-09 kernel: Out of memory: Killed process 15989 (processus) 
 total-vm:21740520kB, anon-rss:14814912kB (14.8 Go RAM)
@@ -246,7 +246,7 @@ Le script `scenarioCPU.sh` met en place un scénario simple mais efficace :
 
 ---
 
-## Outils Forensiques Essentiels
+## Outils forensiques essentiels
 
 ### Analyse de logs système
 
@@ -289,7 +289,7 @@ cat /proc/meminfo
 ---
 
 
-## Structure du Projet
+## Structure du projet
 
 ```
 SAE-forensique/
@@ -307,7 +307,7 @@ SAE-forensique/
 
 ---
 
-## Méthodologie Complète (Synthèse)
+## Méthodologie complète (synthèse)
 
 **Diagnostic processus :**
 1. Repérer : `pgrep -a <nom>`
