@@ -90,7 +90,7 @@ bash src/diagnosticReseau.sh <scenario> [cible]
 | Scénario | Description | Commandes utilisées |
 |----------|-------------|---------------------|
 | `service` | Test d'accessibilité port local (simule blocage firewall) | `curl`, `ss -tuln`, `iptables -L` |
-| `latence` | Analyse qualité réseau et route | `ping`, `mtr`, `traceroute` |
+| `latence` | Analyse qualité réseau et route | `ping`, `mtr`, `tc qdisc netem` |
 | `dns` | Chaîne de résolution DNS (DNS vs Réseau) | `dig`, `host`, `/etc/resolv.conf` |
 | `firewall` | Vérification règles de filtrage | `iptables -L -v -n`, `curl` |
 
