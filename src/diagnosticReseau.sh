@@ -46,34 +46,24 @@ case "$SCENARIO" in
         ;;
 
     latence)
-        echo "1.Ping vers $CIBLE (latence normale)"
-        ping -c 5 "$CIBLE"
+        echo "1.Ping vers 127.0.0.1 (latence normale)"
+        ping -c 5 127.0.0.1
         echo
 
-        echo "2.Traceroute / mtr vers $CIBLE"
-        if command -v mtr >/dev/null 2>&1; then
-            mtr -r -c 10 "$CIBLE"
-        elif command -v traceroute >/dev/null 2>&1; then
-            traceroute "$CIBLE"
-        else
-            echo "  -> mtr/traceroute non installés"
-        fi
-        echo
-
-        echo "3.Simulation de latence sur localhost avec tc netem"
-        if command -v tc >/dev/null 2>&1; then
-            echo "   -> Ajout de 600ms de délai sur l'interface lo"
-            sudo tc qdisc add dev lo root netem delay 600ms
+        echo "2.Simulation de latence locale avec tc netem"
+        if [ -x /usr/sbin/tc ]; then
+            echo "   -> Ajout de 500ms de délai sur l'interface lo"
+            sudo /usr/sbin/tc qdisc add dev lo root netem delay 500ms
             echo
 
-            echo "4.Ping vers 127.0.0.1 (avec latence simulée)"
+            echo "3.Ping vers 127.0.0.1 (avec latence simulée)"
             ping -c 5 127.0.0.1
             echo
 
-            echo "5.Nettoyage de la configuration tc"
-            sudo tc qdisc del dev lo root
+            echo "4.Nettoyage de la configuration tc"
+            sudo /usr/sbin/tc qdisc del dev lo root
         else
-            echo "   -> tc non installé, impossible de simuler la latence locale"
+            echo "   -> tc non disponible sur ce système"
         fi
         echo
         ;;
