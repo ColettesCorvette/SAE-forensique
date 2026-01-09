@@ -162,7 +162,6 @@ case "$SCENARIO" in
         echo "4.Commandes utiles"
         echo "   sudo $IPT -L -v -n   # règles du pare-feu"
         echo "   ss -tuln             # ports en écoute"
-        echo "   # nmap -Pn -p $PORT 127.0.0.1  # optionnel"
         echo
 
         echo "5.Nettoyage"
