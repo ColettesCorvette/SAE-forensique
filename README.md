@@ -9,9 +9,9 @@ Outils et méthodologies pour le diagnostic de processus, l'analyse réseau et l
 ## Préparation
 
 ```bash
-make              # Compiler le simulateur
-./processus <1-5> # Exécuter (voir options ci-dessous)
-make clean        # Nettoyer
+make              
+./processus <1-5> 
+make clean        
 ```
 
 ---
@@ -121,7 +121,7 @@ bash src/diagnosticReseau.sh firewall
 
 ## 3. Investigation Forensique
 
-Analyse post-mortem de deux incidents de sécurité réels.
+Analyse de deux incidents de sécurité réels.
 
 ### Incident A : Brute Force SSH + Escalade de Privilèges
 
@@ -154,21 +154,6 @@ success=no exit=-13 (EACCES) UID="iut-503"
 - **11:05:20** : Connexion réussie (mot de passe faible)
 - **11:12:34** : `cat /etc/shadow` → BLOQUÉ par SELinux
 
-**Correctifs appliqués :**
-```bash
-# Bloquer le compte
-sudo passwd -l iut-503
-
-# Installer Fail2ban
-sudo dnf install fail2ban
-sudo systemctl enable --now fail2ban
-
-# Durcir SSH (/etc/ssh/sshd_config)
-MaxAuthTries 3
-PermitRootLogin no
-PasswordAuthentication no  # Forcer les clés SSH
-```
-
 ---
 
 ### Incident B : Saturation Mémoire
@@ -200,27 +185,6 @@ total-vm:21740520kB, anon-rss:14814912kB (14.8 Go RAM)
 | 15:22:14 | 15810 | 14.8 Go | OOM Kill |
 | 15:23:18 | 15825 | 14.8 Go | OOM Kill |
 | 15:25:25 | 15989 | 14.8 Go | OOM Kill |
-
-**Correctifs appliqués :**
-
-```bash
-# 1. Limites mémoire par utilisateur
-# /etc/systemd/logind.conf
-echo "UserMemoryMax=2G" >> /etc/systemd/logind.conf
-sudo systemctl restart systemd-logind
-
-# 2. Limites ulimit
-# /etc/security/limits.conf
-echo "iut-503  hard  as  2000000" >> /etc/security/limits.conf
-
-# 3. Surveillance RAM
-watch -n 1 'ps aux --sort=-%mem | head -10'
-
-# 4. Protection services critiques
-mkdir -p /etc/systemd/system/sshd.service.d/
-echo -e "[Service]\nOOMScoreAdjust=-900" > /etc/systemd/system/sshd.service.d/oom.conf
-sudo systemctl daemon-reload
-```
 
 ---
 
